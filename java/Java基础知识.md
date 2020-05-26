@@ -1,6 +1,6 @@
 # java基础知识
 
-
+[Object 通用方法](#Object 通用方法)
 
 ## 基础数据类型
 
@@ -44,7 +44,54 @@
 
 ## 构造方法
 
+存在继承的情况，初始化顺序：
+
+- 父类（静态变量、静态语句块）
+- 子类（静态变量、静态语句块）
+- 父类（实例变量、普通语句块）
+- 父类（构造函数）
+- 子类（实例变量、普通语句块）
+- 子类（构造函数）
+
+## Object 通用方法
+
+```java
+public native int hashCode()
+
+public boolean equals(Object obj)
+
+protected native Object clone() throws CloneNotSupportedException
+
+public String toString()
+
+public final native Class<?> getClass()
+
+protected void finalize() throws Throwable {}
+
+public final native void notify()
+
+public final native void notifyAll()
+
+public final native void wait(long timeout) throws InterruptedException
+
+public final void wait(long timeout, int nanos) throws InterruptedException
+
+public final void wait() throws InterruptedException
+```
 
 
 
+## 泛型
 
+### <? extends T>和<? super T>的区别
+
+`<? extends T>`和`<? super T>`是Java泛型中的**“通配符（Wildcards）”**和**“边界（Bounds）”**的概念。
+
+- <? extends T>：是指 **“上界通配符（Upper Bounds Wildcards）”**
+- <? super T>：是指 **“下界通配符（Lower Bounds Wildcards）”**
+
+[参考](https://www.cnblogs.com/drizzlewithwind/p/6100164.html)
+
+### LRU缓存实现(Java)
+
+​	[LRU缓存实现(Java)](https://www.cnblogs.com/lzrabbit/p/3734850.html)
