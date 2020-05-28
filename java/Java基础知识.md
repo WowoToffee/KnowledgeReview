@@ -238,7 +238,7 @@ key和value的取值范围不同。HashMap的key和value都可以为null，但�
 
 HashSet:
 
-​		`Set接口是一种不包括重复元素的Collection，它维持它自己的内部排序`。总所周知HashSet的底层是HashMap，
+​		`Set接口是一种不包括重复元素的Collection，它维持它自己的内部排序`。总所周知HashSet的底层是HashMap，思考：HashSet 是如何实现去重复的。
 
 参考：
 
