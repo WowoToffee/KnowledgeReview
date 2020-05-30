@@ -240,9 +240,41 @@ HashSet:
 
 ​		`Set接口是一种不包括重复元素的Collection，它维持它自己的内部排序`。总所周知HashSet的底层是HashMap，思考：HashSet 是如何实现去重复的。
 
+### 容器中的设计模式
+
+​	迭代器模式：
+
+![容器中的设计模式-迭代器模式](E:\programming\myProject\githob\KnowledgeReview\images\容器中的设计模式-迭代器模式.png)
+
+Collection 继承了 Iterable 接口，其中的 iterator() 方法能够产生一个 Iterator 对象，通过这个对象就可以迭代遍历 Collection 中的元素。
+
+### 适配器模式
+
+java.util.Arrays#asList() 可以把数组类型转换为 List 类型。
+
+```java
+@SafeVarargs
+public static <T> List<T> asList(T... a)
+```
+
+应该注意的是 asList() 的参数为泛型的变长参数，不能使用基本类型数组作为参数，只能使用相应的包装类型数组。
+
+```java 
+Integer[] arr = {1, 2, 3};
+List list = Arrays.asList(arr);
+```
+
+也可以使用以下方式调用 asList()：
+
+```java
+List list = Arrays.asList(1, 2, 3);
+```
+
 参考：
 
 [java集合类](https://blog.csdn.net/a724888/category_9274189.html)
+
+[java容器]([https://github.com/CyC2018/CS-Notes/blob/master/notes/Java%20%E5%AE%B9%E5%99%A8.md](https://github.com/CyC2018/CS-Notes/blob/master/notes/Java 容器.md))
 
 ## 泛型
 
