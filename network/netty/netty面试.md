@@ -17,17 +17,35 @@
 
 4. TCP的粘包/拆包原因及其解决方法是什么？
 
+    [TCP粘包，拆包及解决方法](https://blog.csdn.net/wxy941011/article/details/80428470)
+
 5. Netty的粘包/拆包是怎么处理的，有哪些实现？
+
+    [TCP粘包/拆包问题和Netty的解决方案](https://www.jianshu.com/p/d65d03cb3466)
 
 6. 同步与异步、阻塞与非阻塞的区别？
 
+    同步：执行一个操作之后，等待结果，然后才继续执行后续的操作。
+    
+    异步：执行一个操作后，可以去执行其他的操作，然后等待通知再回来执行刚才没执行完的操作
+
+    阻塞：进程给CPU传达一个任务之后，一直等待CPU处理完成，然后才执行后面的操作
+
+    非阻塞：进程给CPU传达任务后，继续处理后续的操作，隔断时间再来询问之前的操作是否完成。这样的过程其实也叫轮询。
+    
 7. 说说网络IO模型？
+
+    *[IO模块总结](https://my.oschina.net/keepal/blog/3221768/print)
 
 8. BIO、NIO、AIO分别是什么？
 
+    [BIO，NIO，AIO的区别](https://blog.csdn.net/u013068377/article/details/70312551)
+
 9. select、poll、epoll的机制及其区别？
 
-10. 说说你对Netty的了解？
+    *[IO多路复用的三种机制Select，Poll，Epoll](https://www.jianshu.com/p/397449cadc9a)
+    
+    [select、poll、epoll之间的区别(搜狗面试)](https://www.cnblogs.com/aspirant/p/9166944.html)
 
 11. Netty跟Java NIO有什么不同，为什么不直接使用JDK NIO类库？
 
