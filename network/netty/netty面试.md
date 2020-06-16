@@ -43,16 +43,27 @@
 
 9. select、poll、epoll的机制及其区别？
 
+    [一次读懂 Select、Poll、Epoll IO复用技术](https://baijiahao.baidu.com/s?id=1611547498841608701&wfr=spider&for=pc)
+
     *[IO多路复用的三种机制Select，Poll，Epoll](https://www.jianshu.com/p/397449cadc9a)
     
     [select、poll、epoll之间的区别(搜狗面试)](https://www.cnblogs.com/aspirant/p/9166944.html)
 
 11. Netty跟Java NIO有什么不同，为什么不直接使用JDK NIO类库？
 
+    [Java标准NIO类库与Netty的区别](https://blog.csdn.net/qq_33934427/article/details/105427550)
+
+    [探秘Netty2：Netty与Java NIO](https://blog.csdn.net/a724888/article/details/80741896)
+
 12. Netty组件有哪些，分别有什么关联？
+
+    [Netty中的基本组件及关系](https://blog.csdn.net/summerZBH123/article/details/79344226)
+    
+    [Netty组件介绍](https://blog.springlearn.cn/posts/14818/)
 
 13. 说说Netty的执行流程？
 
+    [netty客户端和服务端的执行步骤](https://www.orchome.com/912)
 
 ## 高级
 1. Netty高性能体现在哪些方面？
