@@ -72,6 +72,8 @@
 
 3. Netty的零拷贝提体现在哪里，与操作系统上的有什么区别？
 
+   [理解Netty中的零拷贝（Zero-Copy）机制 ](https://my.oschina.net/plucury/blog/192577)
+
 4. Netty的内存池是怎么实现的？
 
 5. Netty的对象池是怎么实现的？
