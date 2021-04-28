@@ -172,3 +172,43 @@ GET /megacorp/employee/_search
 
 `注意：` 一定要在 `interests` 后面加上`keyword` 不然会报错
 
+
+
+### 数据输入和输出
+
+#### 索引文件
+
+一个文档的 `_index` 、 `_type` 和 `_id` 唯一标识一个文档。 我们可以提供自定义的 `_id` 值，或者让 `index` API 自动生成。
+
+```sense
+# 手动自定义id
+PUT /website/blog/123
+{
+  "title": "My first blog entry",
+  "text":  "Just trying this out...",
+  "date":  "2014/01/01"
+}
+
+# 自动生成id
+POST /website/blog/
+{
+  "title": "My second blog entry",
+  "text":  "Still trying this out...",
+  "date":  "2014/01/01"
+}
+  
+```
+
+#### 返回
+
+只返回data数据
+
+```sense
+GET /website/blog/123?pretty
+```
+
+ 返回部分文档
+
+```sense
+GET /website/blog/123?_source=title,text
+```
