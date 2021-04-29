@@ -48,6 +48,12 @@ PUT /megacorp/employee/1
 
   特定雇员的ID
 
+
+
+### 系统设计
+
+并发：Elasticsearch 使用乐观锁控制并发，通过 `_version` 号来确保变更以正确顺序得到执行。
+
 ### 搜索
 
 #### 轻量级搜索
@@ -211,4 +217,73 @@ GET /website/blog/123?pretty
 
 ```sense
 GET /website/blog/123?_source=title,text
+```
+
+#### 检测文档是否存在
+
+```js
+curl -i -XHEAD http://localhost:9200/website/blog/123
+```
+
+#### 更新文档
+
+update
+
+1. 从旧文档构建 JSON
+2. 更改该 JSON
+3. 删除旧文档
+4. 索引一个新文档
+
+```sense
+PUT /website/blog/123
+{
+  "title": "My first blog entry",
+  "text":  "I am starting to get the hang of this...",
+  "date":  "2014/01/02"
+}
+```
+
+#### 创建新文档
+
+```jssense
+1. POST /website/blog/
+{ ... }
+2. POST /website/blog/123
+{ ... }
+# 一下两种如果存再都会报错
+3. PUT /website/blog/123?op_type=create
+{ ... }
+4. PUT /website/blog/123/_create
+{ ... }
+```
+
+#### 删除文档
+
+```sense
+DELETE /website/blog/123
+```
+
+正如已经在[更新整个文档](https://www.elastic.co/guide/cn/elasticsearch/guide/current/update-doc.html)中提到的，删除文档不会立即将文档从磁盘中删除，只是将文档标记为已删除状态。随着你不断的索引更多的数据，Elasticsearch 将会在后台清理标记为已删除的文档。
+
+#### 更新部分文档
+
+`update` 请求最简单的一种形式是接收文档的一部分作为 `doc` 的参数， 它只是与现有的文档进行合并。对象被合并到一起，覆盖现有的字段，增加新的字段。
+
+```sense
+POST /website/blog/1/_update
+{
+   "doc" : {
+      "tags" : [ "testing" ],
+      "views": 0
+   }
+}
+```
+
+脚本可以在 `update` API中用来改变 `_source` 的字段内容， 它在更新脚本中称为 `ctx._source`
+
+```sense
+POST /website/blog/1/_update
+{
+   "script" : "ctx._source.views+=1"
+}
 ```
