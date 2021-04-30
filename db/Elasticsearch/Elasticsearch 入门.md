@@ -56,6 +56,30 @@ PUT /megacorp/employee/1
 
 ### 搜索
 
+搜索关键字：
+`_search`返回信息：`hits`,`took` 搜索耗时，`_shards` 参与查询分片数
+
+### 技巧
+
+```sense
+/_search
+在所有的索引中搜索所有的类型
+/gb/_search
+在 gb 索引中搜索所有的类型
+/gb,us/_search
+在 gb 和 us 索引中搜索所有的文档
+/g*,u*/_search
+在任何以 g 或者 u 开头的索引中搜索所有的类型
+/gb/user/_search
+在 gb 索引中搜索 user 类型
+/gb,us/user,tweet/_search
+在 gb 和 us 索引中搜索 user 和 tweet 类型
+/_all/user,tweet/_search
+在所有的索引中搜索 user 和 tweet 类型
+```
+
+
+
 #### 轻量级搜索
 
 ```sense
@@ -180,6 +204,18 @@ GET /megacorp/employee/_search
 
 
 
+#### 分页
+
+```sense
+GET /_search?size=5
+GET /_search?size=5&from=5
+GET /_search?size=5&from=10
+```
+
+#### 倒序索引（？）
+
+
+
 ### 数据输入和输出
 
 #### 索引文件
@@ -287,3 +323,16 @@ POST /website/blog/1/_update
    "script" : "ctx._source.views+=1"
 }
 ```
+
+#### 取回多个文档
+
+```js
+GET /website/blog/_mget
+{
+   "ids" : [ "2", "1" ]
+}
+```
+
+
+
+### 映射和分析（？）
