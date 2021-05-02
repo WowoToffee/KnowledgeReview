@@ -78,8 +78,6 @@ PUT /megacorp/employee/1
 在所有的索引中搜索 user 和 tweet 类型
 ```
 
-
-
 #### 轻量级搜索
 
 ```sense
