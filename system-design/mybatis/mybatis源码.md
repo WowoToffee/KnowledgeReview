@@ -120,6 +120,97 @@ public int update(MappedStatement ms, Object parameter) throws SQLException {
 
 #### 怎么样的查询条件算和上一次查询是一样的查询，从而返回同样的结果回去？
 
+在 MyBatis 中，这种复合对象就是 CacheKey。
+
+```java
+public class CacheKey implements Cloneable, Serializable {
+
+    public static final CacheKey NULL_CACHE_KEY = new NullCacheKey();
+
+    private static final int DEFAULT_MULTIPLYER = 37;
+    private static final int DEFAULT_HASHCODE = 17;
+    // 乘子，默认为37
+    private final int multiplier;
+    // CacheKey 的 hashCode，综合了各种影响因子
+    private int hashcode;
+    // 校验和
+    private long checksum;
+    // 影响因子个数
+    private int count;
+    // 影响因子集合
+    private List<Object> updateList;
+    
+    public CacheKey() {
+        this.hashcode = DEFAULT_HASHCODE;
+        this.multiplier = DEFAULT_MULTIPLYER;
+        this.count = 0;
+        this.updateList = new ArrayList<Object>();
+    }
+
+    /*
+     * 每当执行更新操作时，表示有新的影响因子参与计算 
+     *  当不断有新的影响因子参与计算时，hashcode 和 checksum 将会变得愈发复杂和随机。这样可降低冲突率，使 CacheKey 可在缓存中更均匀的分布。
+     */ 
+    public void update(Object object) {
+        int baseHashCode = object == null ? 1 : ArrayUtil.hashCode(object); 
+        // 自增 count
+        count++;
+        // 计算校验和
+        checksum += baseHashCode;
+        // 更新 baseHashCode
+        baseHashCode *= count;
+        // 计算 hashCode
+        hashcode = multiplier * hashcode + baseHashCode;
+        // 保存影响因子
+        updateList.add(object);
+    }   
+
+    /**
+     *  CacheKey 最终要作为键存入 HashMap，因此它需要覆盖 equals 和 hashCode 方法
+     */ 
+    @Override
+    public boolean equals(Object object) {
+        // 检测是否为同一个对象
+        if (this == object) {
+            return true;
+        }
+        // 检测 object 是否为 CacheKey
+        if (!(object instanceof CacheKey)) {
+            return false;
+        }
+        
+        final CacheKey cacheKey = (CacheKey) object;
+        // 检测 hashCode 是否相等
+        if (hashcode != cacheKey.hashcode) {
+            return false;
+        }
+        // 检测校验和是否相同
+        if (checksum != cacheKey.checksum) {
+            return false;
+        }
+        // 检测 coutn 是否相同
+        if (count != cacheKey.count) {
+            return false;
+        }
+        // 如果上面的检测都通过了，下面分别对每个影响因子进行比较
+        for (int i = 0; i < updateList.size(); i++) {
+            Object thisObject = updateList.get(i);
+            Object thatObject = cacheKey.updateList.get(i);
+            if (!ArrayUtil.equals(thisObject, thatObject)) {
+                return false;
+            }
+        }
+        return true;
+    }   
+    
+    @Override
+    public int hashCode() {
+        // 返回 hashcode 变量
+        return hashcode;
+    }   
+}
+```
+
 ==**一级缓存的CacheKey**==
 
 ```java
