@@ -12,8 +12,6 @@ nacos版本为1.1.3
 
 ### NacosServiceRegistry
 
-
-
 ### NacosRegistration
 
 ### NacosAutoServiceRegistration
@@ -25,11 +23,15 @@ nacos版本为1.1.3
 ```java
 》com.alibaba.cloud.nacos.registry.NacosAutoServiceRegistration  
  》org.springframework.cloud.client.serviceregistry.AbstractAutoServiceRegistration#onApplicationEvent
-  》org.springframework.cloud.client.serviceregistry.AbstractAutoServiceRegistration#bind
-   》org.springframework.cloud.client.serviceregistry.AbstractAutoServiceRegistration#start
-	》org.springframework.cloud.client.serviceregistry.AbstractAutoServiceRegistration#register
+  》org.springframework.cloud.client.serviceregistry.AbstractAutoServiceRegistration#bind()
+   》org.springframework.cloud.client.serviceregistry.AbstractAutoServiceRegistration#start()
+	》org.springframework.cloud.client.serviceregistry.AbstractAutoServiceRegistration#register()
 	 》com.alibaba.nacos.client.naming.NacosNamingService#registerInstance()
-      》com.alibaba.nacos.client.naming.net.NamingProxy#reqAPI()
+      》com.alibaba.nacos.client.naming.beat.BeatReactor#addBeatInfo
+       》com.alibaba.nacos.client.naming.net.NamingProxy#sendBeat()
+       》com.alibaba.nacos.client.naming.beat.BeatReactor.BeatTask#run()
+      》com.alibaba.nacos.client.naming.net.NamingProxy#registerService()
+       》com.alibaba.nacos.client.naming.net.NamingProxy#reqAPI()
     
     
 public void onApplicationEvent(WebServerInitializedEvent event) {     this.bind(event); }
@@ -121,7 +123,7 @@ public void registerInstance(String serviceName, String groupName, Instance inst
 ----------------------------------
     ===================================
     // 添加定时任务（心跳连接）
-  public void addBeatInfo(String serviceName, BeatInfo beatInfo) {
+ 	public void addBeatInfo(String serviceName, BeatInfo beatInfo) {
         NAMING_LOGGER.info("[BEAT] adding beat: {} to beat map.", beatInfo);
         dom2Beat.put(buildKey(serviceName, beatInfo.getIp(), beatInfo.getPort()), beatInfo);
         executorService.schedule(new BeatTask(beatInfo), 0, TimeUnit.MILLISECONDS);
@@ -213,7 +215,7 @@ public void registerInstance(String namespaceId, String serviceName, Instance in
         throw new NacosException(NacosException.INVALID_PARAM,
                                  "service not found, namespace: " + namespaceId + ", service: " + serviceName);
     }
-
+	// 添加server实例
     addInstance(namespaceId, serviceName, instance.isEphemeral(), instance);
 }
 -------------------------------------------------
@@ -253,7 +255,6 @@ private void putServiceAndInit(Service service) throws NacosException {
     Loggers.SRV_LOG.info("[NEW-SERVICE] {}", service.toJSON());
 }
 
-
 public void init() {
     HealthCheckReactor.scheduleCheck(clientBeatCheckTask);
 
@@ -284,6 +285,7 @@ public void run() {
 
         // first set health status of instances:
         for (Instance instance : instances) {
+            // 先判断当前时间与上次心跳时间的间隔是否大于超时时间。如果实例已经超时，且为被标记，且健康状态为健康，则将健康状态设置为不健康，同时发布状态变化的事件。
             if (System.currentTimeMillis() - instance.getLastBeat() > instance.getInstanceHeartBeatTimeOut()) {
                 if (!instance.isMarked()) {
                     if (instance.isHealthy()) {
@@ -302,13 +304,14 @@ public void run() {
             return;
         }
 
-        // then remove obsolete instances:
+        // 如果实例已经被标记则跳出循环。如果未标记，同时当前时间与上次心跳时间的间隔大于删除IP时间，则将对应的实例删除。
         for (Instance instance : instances) {
 
             if (instance.isMarked()) {
                 continue;
             }
 
+            // 默认30秒
             if (System.currentTimeMillis() - instance.getLastBeat() > instance.getIpDeleteTimeout()) {
                 // delete instance
                 Loggers.SRV_LOG.info("[AUTO-DELETE-IP] service: {}, ip: {}", service.getName(), JSON.toJSONString(instance));
@@ -323,7 +326,7 @@ public void run() {
 }
 ```
 
-
+==/nacos/v1/ns/instance/beat== 发送实例心跳
 
 
 
