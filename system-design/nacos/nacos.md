@@ -193,7 +193,25 @@ public void registerService(String serviceName, String groupName, Instance insta
 ==/nacos/v1/ns/instance==(Post 将客户端注册到服务中心)
 
 ```java
- @CanDistro
+> com.alibaba.nacos.naming.controllers.InstanceController#register()
+  >com.alibaba.nacos.naming.core.ServiceManager#registerInstance()
+   >com.alibaba.nacos.naming.core.ServiceManager#createEmptyService()
+    >com.alibaba.nacos.naming.core.ServiceManager#putServiceAndInit()
+     >com.alibaba.nacos.naming.core.ServiceManager#putService
+     >com.alibaba.nacos.naming.core.Service#init()
+      >com.alibaba.nacos.naming.healthcheck.HealthCheckReactor#scheduleCheck()
+     >com.alibaba.nacos.naming.core.ServiceManager#addOrReplaceService()
+   >com.alibaba.nacos.naming.core.ServiceManager#addInstance()
+    >com.alibaba.nacos.naming.consistency.ephemeral.distro.DistroConsistencyServiceImpl#put()注册到内存
+     >com.alibaba.nacos.naming.consistency.ephemeral.distro.DistroConsistencyServiceImpl#onPut()添加到任务队列中
+      >com.alibaba.nacos.naming.consistency.ephemeral.distro.DistroConsistencyServiceImpl.Notifier#addTask()
+     >com.alibaba.nacos.core.distributed.distro.DistroProtocol#sync()同步实例信息到nacos server集群其他节点
+    >com.alibaba.nacos.naming.consistency.persistent.raft.RaftConsistencyServiceImpl#put()持久化
+     >com.alibaba.nacos.naming.consistency.persistent.raft.RaftCore#signalPublish()
+      >com.alibaba.nacos.naming.consistency.persistent.raft.RaftProxy#proxyPostLarge()注册请求转发到集群的leader节点
+      >com.alibaba.nacos.naming.consistency.persistent.raft.RaftCore#onPublish()更新注册实例数据到 内存和磁盘上
+    
+@CanDistro
  @PostMapping
  @Secured(parser = NamingResourceParser.class, action = ActionTypes.WRITE)
  public String register(HttpServletRequest request) throws Exception {
@@ -254,6 +272,17 @@ private void putServiceAndInit(Service service) throws NacosException {
     consistencyService.listen(KeyBuilder.buildInstanceListKey(service.getNamespaceId(), service.getName(), false), service);
     Loggers.SRV_LOG.info("[NEW-SERVICE] {}", service.toJSON());
 }
+-----------------------------------------------------
+public void putService(Service service) {
+    if (!serviceMap.containsKey(service.getNamespaceId())) {
+        synchronized (putServiceLock) {
+            if (!serviceMap.containsKey(service.getNamespaceId())) {
+                serviceMap.put(service.getNamespaceId(), new ConcurrentHashMap<>(16));
+            }
+        }
+    }
+    serviceMap.get(service.getNamespaceId()).put(service.getName(), service);
+}    
 
 public void init() {
     HealthCheckReactor.scheduleCheck(clientBeatCheckTask);
