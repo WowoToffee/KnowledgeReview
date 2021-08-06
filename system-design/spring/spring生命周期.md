@@ -58,4 +58,6 @@
 - 如果 Bean 实现了 `BeanClassLoaderAware` 接口，调用 `setBeanClassLoader()` 方法，传入 `ClassLoader` 对象的实例。
 - 如果 Bean 实现了 `BeanFactoryAware` 接口，调用 `setBeanClassLoader()` 方法，传入 `ClassLoader` 对象的实例。
 
+![](https://img-blog.csdn.net/20180614112844333?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTM0MTI3NzI=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
+
 ![Spring Bean 生命周期](https://res-static.hc-cdn.cn/fms/img/d78ca01af24b7ec38aa705e22b8a0ef91603772016992)
