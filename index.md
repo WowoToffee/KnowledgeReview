@@ -1,37 +1,30 @@
-## Welcome to GitHub Pages
+# KnowledgeReview
 
-You can use the [editor on GitHub](https://github.com/WowoToffee/KnowledgeReview/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+介绍
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+[KnowledgeReview](https://github.com/WowoToffee/KnowledgeReview)是本人学习Java过程中记录的一些代码！从Java基础的数据类型、jdk1.8的使用、IO、集合、线程等等技术以及一些常用框架，netty、springboot、es、redis、mysql等等。
 
-### Markdown
+## 项目结构
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
+```
+db/Elasticsearch  -Elasticsearch
+db/mysql -- mysql
+go - go 相关的一些知识
+java - java 相关的一些知识
+linux/vagrant - vagrant
+network/netty - netty
+system-design/algorithm - 一些算法相关类 
+system-design/Feign - Feign源码主干流程
+system-design/mybatis - mybatis源码主干流程
+system-design/nacos - nacos源码主干流程
+system-design/Ribbon - Ribbon源码主干流程
+system-design/seata - seata源码主干流程
+system-design/sentine - sentine源码主干流程
+system-design/shiro - shiro相关知识要点
+system-design/spring - spring IOC,AOP,事务源码主干流程
+util/docker - docker相关知识
+util/git - git相关知识
+util/maven - maven相关知识
+xmind -- 一些xmind分析图
 ```
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/WowoToffee/KnowledgeReview/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
