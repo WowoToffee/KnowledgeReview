@@ -28,7 +28,26 @@
 
 ## 为什么要使用三级缓存?
 
-### 一级缓存
+### 一级缓存不行？
 
 首先我们看看一级缓存行不行，如果只留第一级缓存，那么单例的Bean都存在singletonObjects 中，Spring循环依赖主要基于Java引用传递，当获取到对象时，对象的field或者属性可以延后设置，理论上可以，但是如果延后设置出了问题，就会导致完整的Bean和不完整的Bean都在一级缓存中，这个引用时就有空指针的可能，所以一级缓存不行，至少要有singletonObjects 和earlySingletonObjects 两级。
+
+### 二级缓存不行？
+
+如果`对象A`和`对象B`循环依赖，且都有代理的话，那创建的顺序就是
+
+![image-20200706161709829](https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vd3hfY2MzNDdiZTY5Ni9ibG9nSW1hZ2UvcmF3L21hc3Rlci9pbWFnZS0yMDIwMDcwNjE2MTcwOTgyOS5wbmc?x-oss-process=image/format,png)
+
+1. `A半成品`加入`第三级缓存`
+2. `A`填充属性注入`B` -> 创建`B对象` -> `B半成品`加入`第三级缓存`
+3. `B`填充属性注入`A` -> 创建`A代理对象`，从`第三级缓存`移除`A对象`，`A代理对象`加入`第二级缓存`（此时`A`还是半成品，`B`注入的是`A代理对象`）
+4. 创建`B代理对象`（此时`B`是完成品） -> 从`第三级缓存`移除`B对象`，`B代理对象`加入`第一级缓存`
+5. `A半成品`注入`B代理对象`
+6. 从`第二级缓存`移除`A代理对象`，`A代理对象`加入`第一级缓存`
+
+如果只是有两级缓存，二级缓存存代理对象，那么就会丢失ObjectFactory A,需要重新创建。
+
+如果只是有两级缓存，二级缓存存ObjectFactory A，那么在后面如果有一个对象C 也同样依赖A,需要重新创建代理对象A，这样就会出现两个代理对象A。
+
+
 
