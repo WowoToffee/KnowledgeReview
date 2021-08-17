@@ -49,5 +49,5 @@
 
 如果只是有两级缓存，二级缓存存ObjectFactory A，那么在后面如果有一个对象C 也同样依赖A,需要重新创建代理对象A，这样就会出现两个代理对象A。
 
-
+[参考](https://www.cnblogs.com/semi-sub/p/13548479.html)
 
