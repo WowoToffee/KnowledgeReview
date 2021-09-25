@@ -62,3 +62,13 @@ Docker 容器这个听起来玄而又玄的概念，实际上是在创建容器�
 1. 启用 Linux Namespace 配置；
 2. 设置指定的 Cgroups 参数；
 3. 切换进程的根目录（Change Root）。
+
+ ### **Volume** 
+
+volume 挂载的文件不会在docker commit 时提交掉。
+
+# Kubernetes 
+
+Kubernetes 核心技术在于将docker 进行编排，提供路由网关、水平扩展、监控、备份、灾难恢复等一系列运维能力。
+
+控制节点，即 Master 节点，由三个紧密协作的独立组件组合而成，它们分别是负责 API 服务的 kube-apiserver、负责调度的 kube-scheduler，以及负责容器编排的 kube-controller-manager。整个集群的持久化数据，则由 kube-apiserver 处理后保存在 Etcd 中。
