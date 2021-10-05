@@ -35,9 +35,9 @@ Pod.yaml
 
 ## 控制器模式
 
-Deployment
+### Deployment
 
-ReplicaSet
+### ReplicaSet
 
 Deployment ----------------->ReplicaRet(v1)--------------------->Pod(3个)
 
@@ -47,7 +47,7 @@ Deployment 实际上是一个**两层控制器**。首先，它通过**ReplicaSe
 
 
 
-StatefulSet
+### StatefulSet
 
 StatefulSet 的设计其实非常容易理解。它把真实世界里的应用状态，抽象为了两种情况：
 
@@ -56,3 +56,115 @@ StatefulSet 的设计其实非常容易理解。它把真实世界里的应用�
 
 所以，**StatefulSet 的核心功能，就是通过某种方式记录这些状态，然后在 Pod 被重新创建时，能够为新 Pod 恢复这些状态。**
 
+StatefulSet 的工作原理:
+
+**首先，StatefulSet 的控制器直接管理的是 Pod**。这是因为，StatefulSet 里的不同 Pod 实例，不再像 ReplicaSet 中那样都是完全一样的，而是有了细微区别的。比如，每个 Pod 的 hostname、名字等都是不同的、携带了编号的。而 StatefulSet 区分这些实例的方式，就是通过在 Pod 的名字里加上事先约定好的编号。
+
+**其次，Kubernetes 通过 Headless Service，为这些有编号的 Pod，在 DNS 服务器中生成带有同样编号的 DNS 记录**。只要 StatefulSet 能够保证这些 Pod 名字里的编号不变，那么 Service 里类似于 web-0.nginx.default.svc.cluster.local 这样的 DNS 记录也就不会变，而这条记录解析出来的 Pod 的 IP 地址，则会随着后端 Pod 的删除和再创建而自动更新。这当然是 Service 机制本身的能力，不需要 StatefulSet 操心。
+
+**最后，StatefulSet 还为每一个 Pod 分配并创建一个同样编号的 PVC**。这样，Kubernetes 就可以通过 Persistent Volume 机制为这个 PVC 绑定上对应的 PV，从而保证了每一个 Pod 都拥有一个独立的 Volume。
+
+在这种情况下，即使 Pod 被删除，它所对应的 PVC 和 PV 依然会保留下来。所以当这个 Pod 被重新创建出来之后，Kubernetes 会为它找到同样编号的 PVC，挂载这个 PVC 对应的 Volume，从而获取到以前保存在 Volume 里的数据。
+
+### DaemonSet
+
+运行一个 Daemon Pod。 所以，这个 Pod 有如下三个特征：
+
+1. 这个 Pod 运行在 Kubernetes 集群里的每一个节点（Node）上；
+2. 每个节点上只有一个这样的 Pod 实例；
+3. 当有新的节点加入 Kubernetes 集群后，该 Pod 会自动地在新节点上被创建出来；而当旧节点被删除后，它上面的 Pod 也相应地会被回收掉。
+
+### Job
+
+在 Job 对象中，负责并行控制的参数有两个：
+
+1. spec.parallelism，它定义的是一个 Job 在任意时间最多可以启动多少个 Pod 同时运行；
+2. spec.completions，它定义的是 Job 至少要完成的 Pod 数目，即 Job 的最小完成数.
+
+Job Controller 实际上控制了，作业执行的**并行度**，以及总共需要完成的**任务数**这两个重要参数。而在实际使用时，你需要根据作业的特性，来决定并行度（parallelism）和任务数（completions）的合理取值。(就是根据预期数量和成功数量来判断Job是否完成)
+
+使用 Job 对象的方法:
+
+1. **外部管理器 +Job 模板。**
+
+   ```yaml
+   apiVersion: batch/v1
+   kind: Job
+   metadata:
+     name: process-item-$ITEM
+     labels:
+       jobgroup: jobexample
+   spec:
+     template:
+       metadata:
+         name: jobexample
+         labels:
+           jobgroup: jobexample
+       spec:
+         containers:
+         - name: c
+           image: busybox
+           command: ["sh", "-c", "echo Processing item $ITEM && sleep 5"]
+         restartPolicy: Never
+   ```
+
+   
+
+2. **拥有固定任务数目的并行 Job**。
+
+   ```yaml
+   apiVersion: batch/v1
+   kind: Job
+   metadata:
+     name: job-wq-1
+   spec:
+     completions: 8
+     parallelism: 2
+     template:
+       metadata:
+         name: job-wq-1
+       spec:
+         containers:
+         - name: c
+           image: myrepo/job-wq-1
+           env:
+           - name: BROKER_URL
+             value: amqp://guest:guest@rabbitmq-service:5672
+           - name: QUEUE
+             value: job1
+         restartPolicy: OnFailure
+   ```
+
+3. **指定并行度（parallelism），但不设置固定的 completions 的值。**
+
+   ```yaml
+   apiVersion: batch/v1
+   kind: Job
+   metadata:
+     name: job-wq-2
+   spec:
+     parallelism: 2
+     template:
+       metadata:
+         name: job-wq-2
+       spec:
+         containers:
+         - name: c
+           image: gcr.io/myproject/job-wq-2
+           env:
+           - name: BROKER_URL
+             value: amqp://guest:guest@rabbitmq-service:5672
+           - name: QUEUE
+             value: job2
+         restartPolicy: OnFailure
+   ```
+
+   spec.concurrencyPolicy 字段来定义具体的处理策略。比如：
+
+   1. concurrencyPolicy=Allow，这也是默认情况，这意味着这些 Job 可以同时存在；
+   2. concurrencyPolicy=Forbid，这意味着不会创建新的 Pod，该创建周期被跳过；
+   3. concurrencyPolicy=Replace，这意味着新产生的 Job 会替换旧的、没有执行完的 Job。
+
+#### CronJob
+
+CronJob 是一个 Job 对象的控制器（Controller）

@@ -29,7 +29,7 @@ kind: Pod       #必选，Pod
 metadata:       #必选，元数据
   name: string       #必选，Pod名称
   namespace: string    #必选，Pod所属的命名空间
-  labels:      #自定义标签
+  labels:      #自定义标签（k,v）
     - name: string     #自定义标签名字
   annotations:       #自定义注释列表
     - name: string
