@@ -2,11 +2,13 @@
 
 | 命令                                               | 描述                                                         | 参数 | 参数作用 |
 | -------------------------------------------------- | ------------------------------------------------------------ | ---- | -------- |
-| kubectl create  nginx-deployment.yaml --record     |                                                              |      |          |
-| kubectl get deployments                            |                                                              |      |          |
+| kubectl apply                                      | 创建/更新（执行了一个**对原有 API 对象的 PATCH 操作**。）    |      |          |
+| kubectl create  nginx-deployment.yaml --record     | 创建                                                         |      |          |
+| kubectl replace -f nginx.yaml                      | 更新（使用新的 YAML 文件中的 API 对象，**替换原有的 API 对象**） |      |          |
+| kubectl get deployments                            | 查看 deployments                                             |      |          |
 | kubectl edit deployment/nginx-deployment           |                                                              |      |          |
 | kubectl rollout status deployment/nginx-deployment | 查看上线状态                                                 |      |          |
-| kubectl describe deployment nginx-deployment       |                                                              |      |          |
+| kubectl describe deployment nginx-deployment       | ``                                                           |      |          |
 | kubectl set image                                  | 直接修改镜像                                                 |      |          |
 | kubectl rollout undo deployment/nginx-deployment   | 把整个 Deployment 回滚到上一个版本                           |      |          |
 | kubectl rollout history                            | **查看每次 Deployment 变更对应的版本**                       |      |          |
