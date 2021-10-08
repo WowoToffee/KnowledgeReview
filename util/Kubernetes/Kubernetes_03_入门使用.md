@@ -8,6 +8,19 @@ Pod，是 Kubernetes 项目中最小的 API 对象。Pod，是 Kubernetes 项目
 
 ==Pod，其实是一组共享了某些资源的容器。== 具体的说：**Pod 里的所有容器，共享的是同一个 Network Namespace，并且可以声明共享同一个 Volume。**
 
+在 Kubernetes 中，有几种特殊的 Volume，它们存在的意义不是为了存放容器里的数据，也不是用来进行容器和宿主机之间的数据交换。这些特殊 Volume 的作用，是为容器提供预先定义好的数据。所以，从容器的角度来看，这些 Volume 里的信息就是仿佛是被Kubernetes“投射”（Project）进入容器当中的。这正是 Projected Volume 的含义。
+
+到目前为止，Kubernetes 支持的 Projected Volume 一共有四种：
+
+1. Secret；
+2. ConfigMap；
+3. Downward API；
+4. ServiceAccountToken。
+
+## 容器的健康检查和恢复机制
+
+### 探针（Probe）
+
 shareProcessNamespace: true
 
 
