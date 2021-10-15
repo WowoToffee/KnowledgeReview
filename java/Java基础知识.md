@@ -333,6 +333,15 @@ List list = Arrays.asList(1, 2, 3);
 
 ## 泛型
 
+Java 的泛型是伪泛型，这是因为 Java 在运行期间，所有的泛型信息都会被擦掉，这也就是通常所说类型擦除 。
+
+**常用的通配符为： T，E，K，V，？**
+
+- ？ 表示不确定的 java 类型
+- T (type) 表示具体的一个 java 类型
+- K V (key value) 分别代表 java 键值中的 Key Value
+- E (element) 代表 Element
+
 ### <? extends T>和<? super T>的区别
 
 `<? extends T>`和`<? super T>`是Java泛型中的**“通配符（Wildcards）”**和**“边界（Bounds）”**的概念。
