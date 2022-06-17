@@ -2,40 +2,41 @@
 
 mybatis 也提供了对缓存的支持，分为：
 
-- 一级缓存
-- 二级缓存
+*   一级缓存
+
+*   二级缓存
 
 ![img](https://filescdn.proginn.com/2fb3b2f2085549b531582047ceb52567/402891529098f36d72a2520f93025baa.webp)
 
 ## 一级缓存
 
-​		订单表与会员表是存在一对多的关系 为了尽可能减少join 查询，进行了分阶段查询，即先查询出订单表，在根据member_id 字段查询出会员表，最后进行数据整合 。如果订单表中存在重复的member_id，就会出现很多没必要的重复查询。
+​		订单表与会员表是存在一对多的关系 为了尽可能减少join 查询，进行了分阶段查询，即先查询出订单表，在根据member\_id 字段查询出会员表，最后进行数据整合 。如果订单表中存在重复的member\_id，就会出现很多没必要的重复查询。
 
-   	 针对这种情况myBatis 通过缓存来实现，在同一次查询会话中如果出现相同的语句及参数，就会从缓存中取出不在走数据库查询。一级缓存只能作用于查询会话中 所以也叫做会话缓存。
-   	 一级缓存流程：
-   	 
-   	(1)对于某个查询，根据statementId,params,rowBounds来构建一个key值，根据这个key值去缓存Cache中取出对应的key值存储的缓存结果
-   	(2)判断从Cache中根据特定的key值取的数据是否为空，即是否命中；
-   	(3)如果命中，则直接将缓存结果返回；
-   	(4)如果没命中, 去数据库中查询数据，得到查询结果；
-   	                将key和查询到的结果分别作为key,value对存储到Cache中；
-   	                将查询结果返回；
+```null
+ 针对这种情况myBatis 通过缓存来实现，在同一次查询会话中如果出现相同的语句及参数，就会从缓存中取出不在走数据库查询。一级缓存只能作用于查询会话中 所以也叫做会话缓存。
+ 一级缓存流程：
+ 
+(1)对于某个查询，根据statementId,params,rowBounds来构建一个key值，根据这个key值去缓存Cache中取出对应的key值存储的缓存结果
+(2)判断从Cache中根据特定的key值取的数据是否为空，即是否命中；
+(3)如果命中，则直接将缓存结果返回；
+(4)如果没命中, 去数据库中查询数据，得到查询结果；
+                将key和查询到的结果分别作为key,value对存储到Cache中；
+                将查询结果返回；
+```
 
 **每个sqlSeesion对象都有一个一级缓存，我们在操作数据库时需要构造sqlSeesion对象，在对象中有一个HashMap用于存储缓存数据。不同的sqlSession之间的缓存数据区域（HashMap）是互不影响的。**
 
 ### 使用条件：
 
-```
-1.必须是相同的SQL和参数
+    1.必须是相同的SQL和参数
 
-2.必须是相同的会话
+    2.必须是相同的会话
 
-3.必须是相同的namespace 即同一个mapper
+    3.必须是相同的namespace 即同一个mapper
 
-4.必须是相同的statement 即同一个mapper 接口中的同一个方法
+    4.必须是相同的statement 即同一个mapper 接口中的同一个方法
 
-5.查询语句中间没有执行session.clearCache() 方法
-```
+    5.查询语句中间没有执行session.clearCache() 方法
 
 ### 源码分析：
 
@@ -114,9 +115,11 @@ public int update(MappedStatement ms, Object parameter) throws SQLException {
 
 #### 结论：
 
-1. MyBatis的一级缓存是SqlSession级别的，但是它并不定义在SqlSessio接口的实现类DefaultSqlSession中，而是定义在DefaultSqlSession的成员变量Executor中，Executor是在openSession的时候被实例化出来的，它的默认实现为SimpleExecutor
-2. MyBatis中的一级缓存，与有没有配置无关，==只要SqlSession存在，MyBastis一级缓存就存在==，localCache的类型是PerpetualCache，它其实很简单，一个id属性+一个HashMap属性而已，id是一个名为"localCache"的字符串，HashMap用于存储数据，Key为CacheKey，Value为查询结果
-3. MyBatis的一级缓存查询的时候默认都是会先尝试从一级缓存中获取数据的，但是我们看第6行的代码做了一个判断，ms.isFlushCacheRequired()，即想==每次查询都走DB也行，将<select>标签中的flushCache属性设置为true即可==，这意味着每次查询的时候都会清理一遍PerpetualCache，PerpetualCache中没数据，自然只能走DB
+1.  MyBatis的一级缓存是SqlSession级别的，但是它并不定义在SqlSessio接口的实现类DefaultSqlSession中，而是定义在DefaultSqlSession的成员变量Executor中，Executor是在openSession的时候被实例化出来的，它的默认实现为SimpleExecutor
+
+2.  MyBatis中的一级缓存，与有没有配置无关，==只要SqlSession存在，MyBastis一级缓存就存在==，localCache的类型是PerpetualCache，它其实很简单，一个id属性+一个HashMap属性而已，id是一个名为"localCache"的字符串，HashMap用于存储数据，Key为CacheKey，Value为查询结果
+
+3.  MyBatis的一级缓存查询的时候默认都是会先尝试从一级缓存中获取数据的，但是我们看第6行的代码做了一个判断，ms.isFlushCacheRequired()，即想==每次查询都走DB也行，将标签中的flushCache属性设置为true即可==，这意味着每次查询的时候都会清理一遍PerpetualCache，PerpetualCache中没数据，自然只能走DB
 
 #### 怎么样的查询条件算和上一次查询是一样的查询，从而返回同样的结果回去？
 
@@ -211,7 +214,7 @@ public class CacheKey implements Cloneable, Serializable {
 }
 ```
 
-==**一级缓存的CacheKey**==
+\==**一级缓存的CacheKey**==
 
 ```java
 public class CacheKey implements Cloneable, Serializable {
@@ -381,9 +384,11 @@ public CacheKey createCacheKey(MappedStatement ms, Object parameterObject, RowBo
 
 ### 总结
 
-1. MyBatis一级缓存的生命周期和SqlSession一致。
-2. MyBatis一级缓存内部设计简单，只是一个没有容量限定的HashMap，在缓存的功能性上有所欠缺。
-3. MyBatis的一级缓存最大范围是SqlSession内部，有多个SqlSession或者分布式的环境下，数据库写操作会引起脏数据，建议设定缓存级别为Statement。
+1.  MyBatis一级缓存的生命周期和SqlSession一致。
+
+2.  MyBatis一级缓存内部设计简单，只是一个没有容量限定的HashMap，在缓存的功能性上有所欠缺。
+
+3.  MyBatis的一级缓存最大范围是SqlSession内部，有多个SqlSession或者分布式的环境下，数据库写操作会引起脏数据，建议设定缓存级别为Statement。
 
 ## 二级缓存：
 
@@ -395,7 +400,7 @@ public CacheKey createCacheKey(MappedStatement ms, Object parameterObject, RowBo
 
 ### TransactionalCacheManager
 
-``` java
+```java
 
 /*
  * 事务缓存管理器 
@@ -559,8 +564,6 @@ public class TransactionalCache implements Cache {
 
 ###### SqlSession
 
-
-
 ```java
 public class DefaultSqlSession implements SqlSession {
 
@@ -687,6 +690,8 @@ MyBatis二级缓存只适用于不常进行增、删、改的数据，比如国�
 
 ### 总结
 
-1. MyBatis的二级缓存相对于一级缓存来说，实现了`SqlSession`之间缓存数据的共享，同时粒度更加的细，能够到`namespace`级别，通过Cache接口实现类不同的组合，对Cache的可控性也更强。
-2. MyBatis在多表查询时，极大可能会出现脏数据，有设计上的缺陷，安全使用二级缓存的条件比较苛刻。
-3. 在分布式环境下，由于默认的MyBatis Cache实现都是基于本地的，分布式环境下必然会出现读取到脏数据，需要使用集中式缓存将MyBatis的Cache接口实现，有一定的开发成本，直接使用Redis、Memcached等分布式缓存可能成本更低，安全性也更高。
+1.  MyBatis的二级缓存相对于一级缓存来说，实现了`SqlSession`之间缓存数据的共享，同时粒度更加的细，能够到`namespace`级别，通过Cache接口实现类不同的组合，对Cache的可控性也更强。
+
+2.  MyBatis在多表查询时，极大可能会出现脏数据，有设计上的缺陷，安全使用二级缓存的条件比较苛刻。
+
+3.  在分布式环境下，由于默认的MyBatis Cache实现都是基于本地的，分布式环境下必然会出现读取到脏数据，需要使用集中式缓存将MyBatis的Cache接口实现，有一定的开发成本，直接使用Redis、Memcached等分布式缓存可能成本更低，安全性也更高。
