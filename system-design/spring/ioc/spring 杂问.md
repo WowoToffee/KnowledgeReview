@@ -61,7 +61,7 @@ FactoryBean 是创建Bean的一种方式，帮助实现复杂的初始化逻辑
 
 <span id="9">9.Spring IOC容器启动时做了那些准备  </span>
 
-
+IOC设置元信息读取和解析，IOC容器生命周期，spring事件发布，国际化等
 
 
 
